@@ -1,0 +1,265 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{geometry}
+\usepackage{coling2020}
+\usepackage{times}
+\usepackage{url}
+\usepackage{datetime}
+\usepackage{latexsym}
+\usepackage{microtype}
+\usepackage{amssymb}
+\usepackage[cmex10]{amsmath}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{comment}
+\usepackage{graphicx}
+\graphicspath{{Figures/EPS/}{figures/}}
+\usepackage[usestackEOL]{stackengine}
+\usepackage{array, tabularx, booktabs, multicol, multirow, supertabular}
+\usepackage{tabulary}
+\usepackage{pdfpages}
+\usepackage{color}
+\usepackage[misc]{ifsym}
+\usepackage{enumerate}
+\usepackage[shortlabels]{enumitem}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{algorithmic}
+\usepackage[hidelinks, bookmarks=false]{hyperref}
+\usepackage{makecell}
+\usepackage{calc}
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{longtable}
+\usepackage{authblk}
+\usepackage{listings}
+\hyphenation{an-aly-sis}
+\hyphenation{an-aly-ses}
+\colingfinalcopy 
+
+\newcommand*{\affaddr}[1]{#1} % No op here. Customize it for different styles.
+\newcommand*{\affmark}[1][*]{\textsuperscript{#1}}
+
+\DeclareMathOperator*{\argmin}{\arg\!\min}
+\DeclareMathOperator*{\argmax}{\arg\!\max}
+ \graphicspath{ {./Latex/} }
+\usepackage{subfiles}
+
+
+\begin{document}
+\subfile{Labwork}
+
+\newpage
+\section{ASSIGNMENT SOLUTIONS: }
+{\tt{2.Display the names and hire dates for all employees who were hired before their managers, along 
+with their manager’s names and hire dates.\\}}
+\begin{lstlisting}[caption={Exercise-1},captionpos=,
+backgroundcolor=\color{white},
+language =SQL ,
+breaklines=true,
+frame=single ,
+showspaces=false,
+basicstyle=\ttfamily,
+numbers=left ,
+numberstyle=\tiny ,
+rulecolor=\color{red},
+keywordstyle=\color{blue},
+commentstyle=\color{gray}]
+select l.lastname ,l.hiredate ,m.lastname,m.hiredate
+    from staffs l,staffs m
+    where l.managerid=m.employeeid
+    and l.hiredate<m.hiredate ;
+
+\end{lstlisting} 
+
+\vspace{1cm}
+
+
+{\tt{3.Write a query to show the name of the department that has highest number of job categories. \\}}
+
+
+
+
+\begin{lstlisting}[caption={Exercise-2},captionpos=,
+backgroundcolor=\color{white},
+language =SQL ,
+breaklines=true,
+frame=single ,
+showspaces=false,
+basicstyle=\ttfamily,
+numbers=left ,
+numberstyle=\tiny ,
+rulecolor=\color{red},
+keywordstyle=\color{blue},
+commentstyle=\color{gray}]
+
+select departmentname,departmentid
+ from departments 
+ where departmentid in
+   (
+   select departmentid 
+   from staffs
+   group by departmentid
+   having count(*) in ( select max( numberofjob)
+   from 
+   ( select count(*) numberofjob
+      from staffs 
+   group by departmentid))) ;
+\end{lstlisting} 
+
+
+
+
+\vspace{1cm}
+{\tt{4.Write a query who earn less than the average salary in their departments. Show lastName, 
+departmentID, salary, and the average salary of that department. \\}}
+
+\begin{lstlisting}[caption={Exercise-1},captionpos=,
+backgroundcolor=\color{white},
+language =SQL ,
+breaklines=true,
+frame=single ,
+showspaces=false,
+basicstyle=\ttfamily,
+numbers=left ,
+numberstyle=\tiny ,
+rulecolor=\color{red},
+keywordstyle=\color{blue},
+commentstyle=\color{gray}]
+select lastname,departmentid,salary
+   from staffs s
+   where salary < ( select avg(salary)
+   from staffs t
+   where s.departmentid=t.departmentid ) ;
+
+\end{lstlisting} 
+
+
+
+
+\vspace{1cm}
+{\tt{5.Display the managerID and the salary of the highest paid employee for that manager. ** show the 
+employees’s name as well\\}}
+
+
+\begin{lstlisting}[caption={Exercise-1},captionpos=,
+backgroundcolor=\color{white},
+language =SQL ,
+breaklines=true,
+frame=single ,
+showspaces=false,
+basicstyle=\ttfamily,
+numbers=left ,
+numberstyle=\tiny ,
+rulecolor=\color{red},
+keywordstyle=\color{blue},
+commentstyle=\color{gray}]
+ 
+select managerid,salary ,lastname from staffs
+  where salary in ( select max(salary) from staffs) ;
+
+\end{lstlisting} 
+
+
+
+
+
+\vspace{1cm}
+
+
+
+
+\begin{lstlisting}[caption={Exercise-1},captionpos=,
+backgroundcolor=\color{white},
+language =SQL ,
+breaklines=true,
+frame=single ,
+showspaces=false,
+basicstyle=\ttfamily,
+numbers=left ,
+numberstyle=\tiny ,
+rulecolor=\color{red},
+keywordstyle=\color{blue},
+commentstyle=\color{gray}]
+
+ select departmentname,departmentid from departments
+    natural join staffs
+    where salary < any ( select sum(salary)*1/5 from staffs
+   group by departmentid ) ;
+ 
+
+\end{lstlisting} 
+
+
+
+\vspace{1cm}
+{\tt{7.Show the id of those employees who earn less than the average salary of the departments they 
+work for.\\}}
+
+
+\begin{lstlisting}[caption={Exercise-1},captionpos=,
+backgroundcolor=\color{white},
+language =SQL ,
+breaklines=true,
+frame=single ,
+showspaces=false,
+basicstyle=\ttfamily,
+numbers=left ,
+numberstyle=\tiny ,
+rulecolor=\color{red},
+keywordstyle=\color{blue},
+commentstyle=\color{gray}]
+ 
+  select departmentid
+   from staffs s
+   where salary< (select avg(salary) from staffs t
+    where s.departmentid=t.departmentid) ;
+
+\end{lstlisting} 
+
+
+
+
+\vspace{1cm}
+{\tt{8.Who is the oldest employee in the company? Show his current position, salary, working 
+department and his immediate supervisor.
+\\}}
+
+
+\begin{lstlisting}[caption={Exercise-1},captionpos=,
+backgroundcolor=\color{white},
+language =SQL ,
+breaklines=true,
+frame=single ,
+showspaces=false,
+basicstyle=\ttfamily,
+numbers=left ,
+numberstyle=\tiny ,
+rulecolor=\color{red},
+keywordstyle=\color{blue},
+commentstyle=\color{gray}]
+ 
+ create table jobtime1
+   as
+   select lastname ,jobid,managerid,round((sysdate-hiredate),0) as time
+   from staffs ; 
+   
+   select * from jobtime1
+    order by time desc
+    fetch first 1 rows only ;
+ 
+
+\end{lstlisting} 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
